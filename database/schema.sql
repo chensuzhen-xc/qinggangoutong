@@ -1,0 +1,163 @@
+-- ============================================
+-- 哄哄模拟器 - 数据库表结构
+-- Supabase PostgreSQL Schema
+-- ============================================
+
+-- ============================================
+-- 1. 用户表 (users)
+-- ============================================
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(20) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 创建索引
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+
+-- ============================================
+-- 2. 博客文章表 (blog_posts)
+-- ============================================
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  summary TEXT,
+  content TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 创建索引
+CREATE INDEX IF NOT EXISTS idx_blog_posts_created_at ON blog_posts(created_at DESC);
+
+-- ============================================
+-- 3. 游戏记录表 (game_records)
+-- ============================================
+CREATE TABLE IF NOT EXISTS game_records (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  scenario VARCHAR(255),
+  final_score INTEGER,
+  result VARCHAR(10) CHECK (result IN ('win', 'lose')),
+  played_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 创建索引
+CREATE INDEX IF NOT EXISTS idx_game_records_user_id ON game_records(user_id);
+CREATE INDEX IF NOT EXISTS idx_game_records_played_at ON game_records(played_at DESC);
+
+-- ============================================
+-- 4. 排行榜表 (leaderboard)
+-- ============================================
+CREATE TABLE IF NOT EXISTS leaderboard (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  username VARCHAR(20) NOT NULL,
+  best_score INTEGER NOT NULL,
+  achieved_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 创建索引
+CREATE INDEX IF NOT EXISTS idx_leaderboard_best_score ON leaderboard(best_score DESC);
+CREATE INDEX IF NOT EXISTS idx_leaderboard_user_id ON leaderboard(user_id);
+
+-- ============================================
+-- 初始化预设博客文章
+-- ============================================
+INSERT INTO blog_posts (title, summary, content) VALUES
+('第一次约会如何沟通', '第一次约会总是紧张得手心出汗？别怕，这篇攻略教你如何自然又得体地和TA聊天，让好感度蹭蹭上涨！', '💕 第一次约会紧张到说不出话？来看看这篇攻略吧！
+
+姐妹们（也适用于男同胞们），第一次约会最大的敌人是谁？不是对方，是你自己脑子里那个疯狂尖叫的小人儿！
+
+😅 你是不是也这样：
+- 提前半小时到，在咖啡店门口来回踱步
+- 准备了一肚子话题，结果见面全忘了
+- 对视三秒大脑直接宕机
+
+别慌，我来教你几招！
+
+✨ 【第一招：做好功课但别背台词】
+约会前可以想几个话题，比如最近看的电影、喜欢吃的东西。但千万别像背课文一样念出来，自然一点，当成聊天就行。
+
+✨ 【第二招：学会"接话球"】
+对方说"我最近在学画画"，你可以说"哇好厉害！是什么类型的画？学多久了？"这样话题就自然延续了。
+
+✨ 【第三招：适当暴露小缺点】
+完美的人设反而让人有距离感。承认自己"其实我也有点紧张"反而会让气氛轻松下来。
+
+✨ 【第四招：观察对方的反应】
+如果对方一直看手机或者回复很敷衍，那可能是对话内容不太感兴趣。换一个话题试试！
+
+🎯 【最最重要的是】：
+做真实的自己！约会不是面试，不需要演。喜欢你本来的样子的人，才值得继续交往。
+
+加油，你行的！💪'),
+('谈恋爱时禁忌有哪些', '明明很相爱，却因为一些小事闹得分崩离析？这篇文章告诉你，那些绝对不能踩的雷区！', '🚫 这些恋爱雷区，踩一个分手一个！
+
+爱情不是童话故事里的"从此幸福快乐"，而是需要两个人小心翼翼维护的花园。以下这些雷区，千万别踩！
+
+❌ 【禁忌一：翻旧账】
+"你上次也是这样！"
+"你还记得上次你..."
+拜托！过去的事就让它过去吧，一直翻旧账只会让对方觉得"你根本不是爱我，是在收集我的黑历史"。
+
+❌ 【禁忌二：拿TA和前任比较】
+"我前任就不会这样..."
+"你看看人家男朋友多体贴..."
+亲，你是在谈恋爱还是在养蛊？每提一次前任，对方的爱意就少一分。
+
+❌ 【禁忌三：动不动就提分手】
+"分手吧"说多了就成狼来了。等你真想说的时候，对方可能已经麻木了。
+
+❌ 【禁忌四：在朋友面前贬低TA】
+就算私下吐槽可以理解，但在朋友面前各种嫌弃，只会让TA颜面尽失。TA是你的爱人，不是你的出气筒。
+
+❌ 【禁忌五：控制欲太强】
+查手机、夺命连环call、时刻报备...这些行为不是在乎，是窒息。信任是感情的基石，没有信任的爱情走不远的。
+
+❌ 【禁忌六：把对方的付出当作理所当然】
+TA做饭是因为爱你，不是应该的。时不时说一句"谢谢你"或"辛苦了"，会让TA觉得一切都值得。
+
+💕 好的爱情是让两个人都越来越舒服，而不是越来越累。避开这些雷区，你的爱情之路会顺畅很多！'),
+('道歉的正确打开方式', '一句"对不起"说了无数遍，TA却越来越生气？道歉也是一门艺术，快来学习正确的道歉姿势！', '😤 "对不起"说了100遍，TA为什么还是不理你？
+
+你是不是也遇到过这种情况：明明道歉了，对方却更生气了？别怀疑自己，可能是你的道歉方式有问题！
+
+❌ 【无效道歉一：敷衍型】
+"行行行，我错了还不行吗？"
+这种道歉语气里透着不耐烦，只会让对方更加火大。
+
+❌ 【无效道歉二：转移型】
+"对不起...但是你也有不对的地方啊！"
+道歉加但是，这是道歉还是找借口？承认错误的时候不要给自己加戏。
+
+❌ 【无效道歉三：无限循环型】
+每天都道歉，每天都犯同样的错。道歉是要配合行动的，不是嘴上说说就行。
+
+✅ 【正确道歉姿势】
+
+✨ 【第一步：认错要具体】
+不要只说"我错了"，要说"我不应该在开会的时候没回你消息，让你担心了"。
+
+✨ 【第二步：承认对方感受】
+"我知道你一定很着急，也很生气，换做是我也会这样。"
+
+✨ 【第三步：解释原因（但不找借口）】
+可以说"是因为工作太忙"，但不要说"是因为工作太忙才没回你"。
+
+✨ 【第四步：提出弥补方案】
+"以后我提前跟你说，或者设置个提醒。你觉得这样可以吗？"
+
+✨ 【第五步：用行动证明】
+说完就要做到！说到做到才是真道歉。
+
+💡 【小技巧】
+有时候一个拥抱比一百句"对不起"更有用。关键时刻别吝啬你的怀抱！
+
+道歉不是软弱的表现，而是成熟的标志。学会正确道歉，你们的感情会越来越好的！💕')
+ON CONFLICT DO NOTHING;
+
+-- ============================================
+-- 完成！
+-- ============================================
