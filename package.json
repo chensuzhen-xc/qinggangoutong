@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
+    "build": "next build && tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify",
+    "dev": "tsx watch src/server.ts",
+    "preinstall": "npx only-allow pnpm",
     "lint": "eslint",
-    "start": "next start"
+    "start": "node dist/server.js",
+    "ts-check": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",

@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      entry: result,
+      updated: result.updated,
+      isNewRecord: result.isNewRecord,
     });
   } catch (error) {
     console.error('更新排行榜失败:', error);

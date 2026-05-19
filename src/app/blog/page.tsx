@@ -10,30 +10,7 @@ interface BlogPost {
   title: string;
   summary: string;
   created_at: string;
-  content?: string;
 }
-
-// 预设文章数据
-const presetArticles: BlogPost[] = [
-  {
-    id: 1,
-    title: '第一次约会如何沟通',
-    summary: '第一次约会总是紧张得手心出汗？别怕，这篇攻略教你如何自然又得体地和TA聊天，让好感度蹭蹭上涨！',
-    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-  {
-    id: 2,
-    title: '谈恋爱时禁忌有哪些',
-    summary: '明明很相爱，却因为一些小事闹得分崩离析？这篇文章告诉你，那些绝对不能踩的雷区！',
-    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: 3,
-    title: '道歉的正确打开方式',
-    summary: '一句"对不起"说了无数遍，TA却越来越生气？道歉也是一门艺术，快来学习正确的道歉姿势！',
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -46,27 +23,16 @@ export default function BlogPage() {
     setIsLoading(true);
     setError(null);
     try {
-      // 先尝试从API加载
-      try {
-        await fetch('/api/blog/init', { method: 'POST' });
-        const response = await fetch('/api/blog/list');
-        const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setPosts(data);
-        } else {
-          // 如果API没有返回数据，使用预设数据
-          setPosts(presetArticles);
-        }
-      } catch (apiError) {
-        // API失败时，使用预设数据
-        console.log('使用预设文章数据');
-        setPosts(presetArticles);
-      }
+      // 先初始化文章（如果数据库为空）
+      await fetch('/api/blog/init', { method: 'POST' });
+
+      // 获取文章列表
+      const response = await fetch('/api/blog/list');
+      const data = await response.json();
+      setPosts(data);
     } catch (err) {
       console.error('加载文章失败:', err);
       setError('加载文章失败，请稍后重试');
-      // 出错时也使用预设数据
-      setPosts(presetArticles);
     } finally {
       setIsLoading(false);
     }
@@ -78,26 +44,16 @@ export default function BlogPage() {
     
     setIsGenerating(true);
     try {
-      try {
-        const response = await fetch('/api/blog/generate', {
-          method: 'POST',
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-          await loadPosts();
-        } else {
-          setError(data.error || '生成失败');
-        }
-      } catch (apiError) {
-        // API失败时，添加一个本地预设的新文章
-        const newArticle: BlogPost = {
-          id: Date.now(),
-          title: '如何维持长期关系的新鲜感',
-          summary: '在一起久了感觉平淡了？这篇文章告诉你如何让感情保持新鲜感，像刚恋爱时一样甜蜜！',
-          created_at: new Date().toISOString(),
-        };
-        setPosts([newArticle, ...posts]);
+      const response = await fetch('/api/blog/generate', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        // 刷新文章列表
+        await loadPosts();
+      } else {
+        setError(data.error || '生成失败');
       }
     } catch (err) {
       console.error('生成文章失败:', err);
