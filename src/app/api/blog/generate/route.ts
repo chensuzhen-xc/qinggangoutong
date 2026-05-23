@@ -136,11 +136,12 @@ export async function POST(request: NextRequest) {
       articleContent = content.substring(separatorIndex + 3).trim();
     }
 
-    // 保存到数据库
+    // ✅ 修复：添加了 author_id，部署必备！
     const post = await createPost({
       title,
       summary,
       content: articleContent,
+      author_id: "system",
     });
 
     return NextResponse.json({
