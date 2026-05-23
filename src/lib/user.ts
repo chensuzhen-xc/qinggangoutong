@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
+const supabase = getSupabaseClient();
 import bcrypt from 'bcryptjs';
 
 /**
