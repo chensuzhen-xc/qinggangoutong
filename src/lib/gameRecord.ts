@@ -1,2 +1,8 @@
-// 空壳文件，仅用于构建不报错，游戏功能后期再写
-export const temp = true
+// gameRecord.ts - 兼容空实现，仅保证构建通过，功能后续再补
+export async function createGameRecord() {
+  return { success: true };
+}
+
+export async function getGameRecordsByUserId() {
+  return [];
+}
