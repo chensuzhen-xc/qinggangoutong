@@ -22,19 +22,21 @@ export async function getPostById(id: string) {
   return data;
 }
 
-// ✅ 这里我帮你改成接收对象，和前端调用匹配
+// ✅ 已修复：添加了 summary 字段 + 支持对象传参
 export async function createPost({
   title,
+  summary,
   content,
-  author_id
+  author_id,
 }: {
   title: string;
+  summary: string;
   content: string;
   author_id: string;
 }) {
   const { data, error } = await supabase
     .from('blog_posts')
-    .insert([{ title, content, author_id }])
+    .insert([{ title, summary, content, author_id }])
     .select()
     .single();
 
