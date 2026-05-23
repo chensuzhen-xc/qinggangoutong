@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 创建用户
-    const user = await createUser(username, password);
+    const user = await createUser(username, password, username);
 
     return NextResponse.json({
       success: true,
