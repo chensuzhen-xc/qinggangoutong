@@ -32,3 +32,13 @@ export async function createPost(title: string, content: string, author_id: stri
   if (error) throw new Error(error.message);
   return data;
 }
+export async function getPostBySlug(id: string) {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
