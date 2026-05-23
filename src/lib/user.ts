@@ -2,12 +2,16 @@ import bcrypt from 'bcryptjs';
 import { getSupabaseClient } from '@/lib/supabase';
 const supabase = getSupabaseClient();
 
-export async function createUser(username: string, password: string, nickname: string) {
+// 这里加了 ?  → nickname 变成可选
+export async function createUser(username: string, password: string, nickname?: string) {
   const hashedPassword = await bcrypt.hash(password, 12);
+
+  // 这里加了默认值 → 没传昵称就用用户名
+  const finalNickname = nickname || username;
 
   const { data, error } = await supabase
     .from('users')
-    .insert([{ username, password: hashedPassword, nickname }])
+    .insert([{ username, password: hashedPassword, nickname: finalNickname }])
     .select('id, username, nickname, created_at')
     .single();
 
